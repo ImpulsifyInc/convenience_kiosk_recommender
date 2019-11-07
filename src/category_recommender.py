@@ -6,8 +6,9 @@ import sys
 sys.path.append("..")
 from src.get_clusters import get_table, push_table
 
-def sold_by_store(property_code, category, month):
-    top_store = sold[['agg_ward','property_code','category_name','description', 'transaction_month', 'number_sold']][sold.number_sold > 0]. \
+
+def sold_by_store(property_code, category, month, df):
+    top_store = df[['agg_ward','property_code','category_name','description', 'transaction_month', 'number_sold']][df.number_sold > 0]. \
         groupby(['agg_ward','property_code','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
         sort_values(by=['agg_ward','property_code','category_name', 'transaction_month', 'number_sold'], ascending=False)    
     
@@ -20,8 +21,8 @@ def sold_by_store(property_code, category, month):
     
     return out
 
-def top_sold_by_cluster(cluster, category, month, num = 5):
-    top_cluster = sold[['agg_ward','category_name','description', 'transaction_month','number_sold']][sold.number_sold > 0]. \
+def top_sold_by_cluster(cluster, category, month, num, df):
+    top_cluster = df[['agg_ward','category_name','description', 'transaction_month','number_sold']][df.number_sold > 0]. \
         groupby(['agg_ward','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
         sort_values(by=['agg_ward','category_name', 'transaction_month', 'number_sold'], ascending=False)
 
@@ -29,15 +30,15 @@ def top_sold_by_cluster(cluster, category, month, num = 5):
                        (top_cluster.category_name == category) & 
                        (top_cluster.transaction_month == month)].head(num)
 
-def top_sold_overall(category, month, num = 5):
-    top_overall = sold[['category_name', 'description', 'transaction_month','number_sold']][sold.number_sold > 0]. \
+def top_sold_overall(category, month, num, df):
+    top_overall = df[['category_name', 'description', 'transaction_month','number_sold']][df.number_sold > 0]. \
         groupby(['category_name', 'description', 'transaction_month'], as_index=False).sum(). \
         sort_values(by=['category_name', 'transaction_month', 'number_sold'], ascending=False)
     
     return top_overall[(top_overall.category_name == category) & 
                        (top_overall.transaction_month == month)].head(num)
 
-def compare_products(property_code, category, month, num = 5):
+def compare_products(property_code, category, month, num, df):
     '''
     inputs: property_code
             category = product_category
@@ -49,16 +50,16 @@ def compare_products(property_code, category, month, num = 5):
     '''
     
     
-    top_store_prods = sold_by_store(property_code, category, month).head(num)
-    store_prods = sold_by_store(property_code, category, month)
-    clust = np.max(sold[(sold.property_code == property_code) &
-                        (sold.category_name == category)].agg_ward) # the max doesn't do anything all the clusters are the same
-    clust_prods = top_sold_by_cluster(clust, category, month, num)
+    top_store_prods = sold_by_store(property_code, category, month, df).head(num)
+    store_prods = sold_by_store(property_code, category, month, df)
+    clust = np.max(df[(df.property_code == property_code) &
+                        (df.category_name == category)].agg_ward) # the max doesn't do anything all the clusters are the same
+    clust_prods = top_sold_by_cluster(clust, category, month, num, df)
     tot_clust = np.sum(clust_prods.number_sold)
-    natl_prods = top_sold_overall(category, month)
+    natl_prods = top_sold_overall(category, month, num, df)
     tot_natl = np.sum(natl_prods.number_sold)
     
-    desc = sold[['flag_name','city','state']][sold.property_code == property_code].iloc[0]
+    desc = df[['flag_name','city','state']][df.property_code == property_code].iloc[0]
     print('For store #{0}, {1}, {2}, {3} {4}'.format(property_code,
                                                      desc.flag_name,
                                                      desc.city,
@@ -78,8 +79,8 @@ def compare_products(property_code, category, month, num = 5):
                                     round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1)))
         return print('')
     
-    if sold_by_store(property_code, category, month).shape[0] < num:
-        n = sold_by_store(property_code, category, month).shape[0]
+    if sold_by_store(property_code, category, month, df).shape[0] < num:
+        n = sold_by_store(property_code, category, month, df).shape[0]
     else:
         n = num
     print('\nYour top products in {}:'.format(category))
@@ -134,6 +135,8 @@ def compare_products(property_code, category, month, num = 5):
                 print('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
                                                         to_remove.number_sold.iloc[i],
                                                         round(100 * to_remove.pct_of_sold.iloc[i],1)))
+    
+    return 'printout goes here'
 
 
 
