@@ -49,7 +49,8 @@ def compare_products(property_code, category, month, num, df):
             in that category to stock and products to discontinue
     '''
     
-    
+    output = []
+
     top_store_prods = sold_by_store(property_code, category, month, df).head(num)
     store_prods = sold_by_store(property_code, category, month, df)
     clust = np.max(df[(df.property_code == property_code) &
@@ -60,32 +61,33 @@ def compare_products(property_code, category, month, num, df):
     tot_natl = np.sum(natl_prods.number_sold)
     
     desc = df[['flag_name','city','state']][df.property_code == property_code].iloc[0]
-    print('For store #{0}, {1}, {2}, {3} {4}'.format(property_code,
+    output.append('For store #{0}, {1}, {2}, {3} {4}'.format(property_code,
                                                      desc.flag_name,
                                                      desc.city,
                                                      desc.state,
                                                      month))
     
     if store_prods.shape[0] == 0:
-        print('No products sold in {}'.format(category))
+        output.append('No products sold in {}'.format(category))
         
         if natl_prods.shape[0] < num:
             n = natl_prods.shape[0]
         else:
             n = num
-        print('\nNational top products in {}:'.format(category))
+        output.append('\nNational top products in {}:'.format(category))
         for i in range(n):
-            print('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
+            output.append('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
                                     round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1)))
-        return print('')
+        s = '\n'
+        return display('\n'.join(output))
     
     if sold_by_store(property_code, category, month, df).shape[0] < num:
         n = sold_by_store(property_code, category, month, df).shape[0]
     else:
         n = num
-    print('\nYour top products in {}:'.format(category))
+    output.append('\nYour top products in {}:'.format(category))
     for i in range(n):
-        print('{0}. {1}: {2} units, {3}%'.format(i+1, top_store_prods.description.iloc[i],
+        output.append('{0}. {1}: {2} units, {3}%'.format(i+1, top_store_prods.description.iloc[i],
                                           top_store_prods.number_sold.iloc[i], 
                                                  round(100 * top_store_prods.pct_of_sold.iloc[i],1)))
     
@@ -93,18 +95,18 @@ def compare_products(property_code, category, month, num, df):
         n = clust_prods.shape[0]
     else:
         n = num
-    print('\nCluster({}) top products:'.format(clust))
+    output.append('\nCluster({}) top products:'.format(clust))
     for i in range(n):
-        print('{0}. {1}: {2}%'.format(i+1, clust_prods.description.iloc[i],
+        output.append('{0}. {1}: {2}%'.format(i+1, clust_prods.description.iloc[i],
                                 round(100 * clust_prods.number_sold.iloc[i]/tot_clust,1)))
     
     if natl_prods.shape[0] < num:
         n = natl_prods.shape[0]
     else:
         n = num
-    print('\nNational top product:')
+    output.append('\nNational top product:')
     for i in range(n):
-        print('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
+        output.append('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
                                 round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1)))
     
     '''
@@ -117,26 +119,26 @@ def compare_products(property_code, category, month, num, df):
                            (store_prods.cum_pct > .9)]
     
     if set(clust_prods.description) - set(store_prods.description) == set():
-        print('\nYou are selling the top products already!')
+        output.append('\nYou are selling the top products already!')
         if to_remove.shape[0] > 0:
-            print('\nConsider discontinue stocking:')
+            output.append('\nConsider discontinue stocking:')
             for i in range(to_remove.shape[0]):
-                print('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
+                output.append('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
                                                         to_remove.number_sold.iloc[i],
                                                         round(100 * to_remove.pct_of_sold.iloc[i],1))) 
     else:
-        print('\nStocking suggestions:')
+        output.append('\nStocking suggestions:')
         add = list(set(clust_prods.description) - set(store_prods.description))
         for idx, item in enumerate(add):
-            print('{0}. {1}'.format(idx+1, item))
+            output.append('{0}. {1}'.format(idx+1, item))
         if to_remove.shape[0] > 0:
-            print('\nConsider discontinue stocking:')
+            output.append('\nConsider discontinue stocking:')
             for i in range(to_remove.shape[0]):
-                print('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
+                output.append('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
                                                         to_remove.number_sold.iloc[i],
                                                         round(100 * to_remove.pct_of_sold.iloc[i],1)))
     
-    return 'printout goes here'
+    return '<br>'.join(output)
 
 
 
