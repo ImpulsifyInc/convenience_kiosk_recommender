@@ -20,12 +20,11 @@ sql = 'SELECT DISTINCT transaction_month FROM product_category_recommender ORDER
 month_list = list(get_table(sql).iloc[:,0])
 sql = 'SELECT DISTINCT category_name FROM product_category_recommender ORDER BY category_name'
 category_list = list(get_table(sql).iloc[:,0])
-#number_category_list = ['a','b']#[5, 1, 2, 3, 4, 6, 7, 8, 9, 10]
 
 # home page
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    properties = prop_list #['CLTTB', 'DALLF', 'LRDES', 'DTTLI', 'CHILM', 'SEALW','MEMPE', 'MIASP', 'YULDN', 'MCOOR']
+    properties = ['CLTTB', 'DALLF', 'LRDES', 'DTTLI', 'CHILM', 'SEALW','MEMPE', 'MIASP', 'YULDN', 'MCOOR']
     categories = category_list
     months = month_list
     nums = [5, 1, 2, 3, 4, 6, 7, 8, 9, 10]
@@ -40,9 +39,8 @@ def recommend():
     
     SQL = """SELECT * 
             FROM product_category_recommender 
-            WHERE property_code = '{0}'
-                AND category_name = '{1}'
-            """.format(property, category)
+            WHERE transaction_month = '{0}'
+            """.format(month)
     sold = get_table(SQL)
 
     recommendation = compare_products(property, category, month, int(num), sold)
