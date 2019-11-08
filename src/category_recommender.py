@@ -4,13 +4,13 @@ import psycopg2 as pg2
 import pandas.io.sql as sqlio
 import sys
 sys.path.append("..")
-from src.get_clusters import get_table, push_table
+from src.get_clusters import get_table
 
 
 def sold_by_store(property_code, category, month, df):
-    top_store = df[['agg_ward','property_code','category_name','description', 'transaction_month', 'number_sold']][df.number_sold > 0]. \
-        groupby(['agg_ward','property_code','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
-        sort_values(by=['agg_ward','property_code','category_name', 'transaction_month', 'number_sold'], ascending=False)    
+    top_store = df[['cluster','property_code','category_name','description', 'transaction_month', 'number_sold']][df.number_sold > 0]. \
+        groupby(['cluster','property_code','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
+        sort_values(by=['cluster','property_code','category_name', 'transaction_month', 'number_sold'], ascending=False)    
     
     out = top_store[(top_store.property_code == property_code) & 
                     (top_store.category_name == category) & 
@@ -22,11 +22,11 @@ def sold_by_store(property_code, category, month, df):
     return out
 
 def top_sold_by_cluster(cluster, category, month, num, df):
-    top_cluster = df[['agg_ward','category_name','description', 'transaction_month','number_sold']][df.number_sold > 0]. \
-        groupby(['agg_ward','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
-        sort_values(by=['agg_ward','category_name', 'transaction_month', 'number_sold'], ascending=False)
+    top_cluster = df[['cluster','category_name','description', 'transaction_month','number_sold']][df.number_sold > 0]. \
+        groupby(['cluster','category_name', 'description', 'transaction_month'], as_index=False).sum(). \
+        sort_values(by=['cluster','category_name', 'transaction_month', 'number_sold'], ascending=False)
 
-    return top_cluster[(top_cluster.agg_ward == cluster) & 
+    return top_cluster[(top_cluster.cluster == cluster) & 
                        (top_cluster.category_name == category) & 
                        (top_cluster.transaction_month == month)].head(num)
 
@@ -51,63 +51,66 @@ def compare_products(property_code, category, month, num, df):
     
     output = []
 
+    clust = np.max(df[(df.property_code == property_code)].cluster)
+    print(clust)
     top_store_prods = sold_by_store(property_code, category, month, df).head(num)
     store_prods = sold_by_store(property_code, category, month, df)
-    clust = np.max(df[(df.property_code == property_code) &
-                        (df.category_name == category)].agg_ward) # the max doesn't do anything all the clusters are the same
-    clust_prods = top_sold_by_cluster(clust, category, month, num, df)
-    tot_clust = np.sum(clust_prods.number_sold)
+    #clust = np.max(df[(df.property_code == property_code)].cluster) # the max doesn't do anything all the clusters are the same
+    #clust = np.max(df[(df.property_code == 'DALLF')].cluster)
+    #clust_prods = top_sold_by_cluster(clust, category, month, num, df)
+    #tot_clust = np.sum(clust_prods.number_sold)
     natl_prods = top_sold_overall(category, month, num, df)
     tot_natl = np.sum(natl_prods.number_sold)
     
     desc = df[['flag_name','city','state']][df.property_code == property_code].iloc[0]
-    output.append('For store #{0}, {1}, {2}, {3} {4}'.format(property_code,
+    output.append((1,'For store #{0}, {1}, {2}, {3}, for {4}, part of Cluster ({5})'.format(property_code,
                                                      desc.flag_name,
                                                      desc.city,
                                                      desc.state,
-                                                     month))
+                                                     month,
+                                                     clust)))
     
     if store_prods.shape[0] == 0:
-        output.append('No products sold in {}'.format(category))
+        output.append((1,'No products sold in {}'.format(category)))
         
         if natl_prods.shape[0] < num:
             n = natl_prods.shape[0]
         else:
             n = num
-        output.append('\nNational top products in {}:'.format(category))
+        output.append((1,'National top products in {}:'.format(category)))
         for i in range(n):
-            output.append('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
-                                    round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1)))
+            output.append((0,'{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
+                                    round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1))))
         s = '\n'
-        return display('\n'.join(output))
+        return output#'<\n'.join(output)
     
     if sold_by_store(property_code, category, month, df).shape[0] < num:
         n = sold_by_store(property_code, category, month, df).shape[0]
     else:
         n = num
-    output.append('\nYour top products in {}:'.format(category))
+    output.append((1,'Your top products in {}:'.format(category)))
     for i in range(n):
-        output.append('{0}. {1}: {2} units, {3}%'.format(i+1, top_store_prods.description.iloc[i],
+        output.append((0,'{0}. {1}: {2} units, {3}%'.format(i+1, top_store_prods.description.iloc[i],
                                           top_store_prods.number_sold.iloc[i], 
-                                                 round(100 * top_store_prods.pct_of_sold.iloc[i],1)))
+                                                 round(100 * top_store_prods.pct_of_sold.iloc[i],1))))
     
     if clust_prods.shape[0] < num:
         n = clust_prods.shape[0]
     else:
         n = num
-    output.append('\nCluster({}) top products:'.format(clust))
+    output.append((1,'Cluster ({}) top products:'.format(clust)))
     for i in range(n):
-        output.append('{0}. {1}: {2}%'.format(i+1, clust_prods.description.iloc[i],
-                                round(100 * clust_prods.number_sold.iloc[i]/tot_clust,1)))
+        output.append((0,'{0}. {1}: {2}%'.format(i+1, clust_prods.description.iloc[i],
+                                round(100 * clust_prods.number_sold.iloc[i]/tot_clust,1))))
     
     if natl_prods.shape[0] < num:
         n = natl_prods.shape[0]
     else:
         n = num
-    output.append('\nNational top product:')
+    output.append((1,('National top product:')))
     for i in range(n):
-        output.append('{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
-                                round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1)))
+        output.append((0,'{0}. {1}: {2}%'.format(i+1, natl_prods.description.iloc[i],
+                                round(100 * natl_prods.number_sold.iloc[i]/tot_natl,1))))
     
     '''
     products suggested for removal are not in top 5 of cluster and are in the
@@ -119,123 +122,34 @@ def compare_products(property_code, category, month, num, df):
                            (store_prods.cum_pct > .9)]
     
     if set(clust_prods.description) - set(store_prods.description) == set():
-        output.append('\nYou are selling the top products already!')
+        output.append((1,'You are selling the top products already!'))
         if to_remove.shape[0] > 0:
-            output.append('\nConsider discontinue stocking:')
+            output.append((1,'Consider discontinue stocking:'))
             for i in range(to_remove.shape[0]):
-                output.append('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
+                output.append((0,'{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
                                                         to_remove.number_sold.iloc[i],
-                                                        round(100 * to_remove.pct_of_sold.iloc[i],1))) 
+                                                        round(100 * to_remove.pct_of_sold.iloc[i],1)))) 
     else:
-        output.append('\nStocking suggestions:')
+        output.append((1,'Stocking suggestions:'))
         add = list(set(clust_prods.description) - set(store_prods.description))
         for idx, item in enumerate(add):
-            output.append('{0}. {1}'.format(idx+1, item))
+            output.append((0,'{0}. {1}'.format(idx+1, item)))
         if to_remove.shape[0] > 0:
-            output.append('\nConsider discontinue stocking:')
+            output.append((1,'Consider discontinue stocking:'))
             for i in range(to_remove.shape[0]):
-                output.append('{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
+                output.append((0,'{0}. {1}: {2} units, {3}%'.format(i+1, to_remove.description.iloc[i],
                                                         to_remove.number_sold.iloc[i],
-                                                        round(100 * to_remove.pct_of_sold.iloc[i],1)))
+                                                        round(100 * to_remove.pct_of_sold.iloc[i],1))))
     
-    return '<br>'.join(output)
-
-
-
-
+    return output
 
 if __name__ == "__main__":
     
     print('getting data (this may take awhile)... ')
-
-    # sql = '''select flag_name
-    #         , city
-    #         , state
-    #         , property_code
-    #         , kind
-    #         , guest_profile
-    #         , location_type
-    #         , props_under_mgmt
-    #         --, pc1
-    #         --, pc2
-    #         --, kmeans
-    #         , agg_ward
-    #         , transaction_month
-    #         , itemizer
-    #         , category_name
-    #         , description
-    #         , sum(quantity) number_sold
-    #         , sum(subtotal) dollars_sold
-
-    #     from (
-
-    #     SELECT li.store_product_id
-    #         , li.cart_id
-    #         , cat.itemizer
-    #         , cat.name category_name
-    #         , mpd.description
-    #         , li.quantity
-    #         , li.price
-    #         , li.cost
-    #         , li.vendor_id
-    #         --, li.discount
-    #         --, c.discount_amount
-    #         --, c.tendered
-    #         --, c.reason
-    #         , li.subtotal
-    #         , TO_CHAR(c.transaction_date :: DATE, 'yyyy-mm') AS transaction_month
-    #         , c.store_id
-    #         , c.property_id
-    #         , c.property_store_id
-    #         , p.*
-
-    #     FROM line_items li
-
-    #     LEFT Join store_products sp
-    #         on li.store_product_id = sp.id
-
-    #     LEFT join mpd
-    #         on sp.upc = mpd.upc
-
-    #     LEFT JOIN carts c
-    #         ON li.cart_id = c.id
-
-    #     LEFT JOIN categories AS cat
-    #         ON cat.id = mpd.category_id
-
-    #     INNER JOIN property_clusters p
-    #         ON c.property_id = p.property_id
-
-    #     WHERE c.status='complete' 
-    #         AND c.payment_type IN ('cash','credit','room')
-    #         AND TO_CHAR(c.transaction_date :: DATE, 'yyyy-mm') = '2019-09' -- change if larger data range desired
-    #         and c.discount_amount = 0
-    #         and cat.name = 'Beverage: Soda' -- comment out for all products
-
-    #     ) A
-
-    #     group by flag_name
-    #         , city
-    #         , state
-    #         , property_code
-    #         , kind
-    #         , guest_profile
-    #         , location_type
-    #         , props_under_mgmt
-    #         --, pc1
-    #         --, pc2
-    #         --, kmeans
-    #         , agg_ward
-    #         , transaction_month
-    #         , itemizer
-    #         , category_name
-    #         , description
-
-    #     ;'''
     
     sql = '''select * from product_category_recommender'''
     sold = get_table(sql)
 
     print('analyzing...')
 
-    compare_products('SPICC', 'Beverage: Soda', '2019-09', 5)
+    compare_products('SPICC', 'Beverage: Soda', '2019-09', 5, sold)

@@ -25,15 +25,15 @@ def push_table(df, table, db = 'impulsify', user = 'postgres',
         writres table to DB. Overwrites if table already exists
     '''
     engine = create_engine('postgresql+psycopg2://'+user+':@'+host+':'+port+'/'+db)
-    props.head(0).to_sql('property_clusters', engine, if_exists='replace',index=False) #truncates the table
+    df.head(0).to_sql('property_clusters', engine, if_exists='replace',index=False) #truncates the table
     
     conn = engine.raw_connection()
     cur = conn.cursor()
     output = io.StringIO()
-    df.to_csv(output, sep='\t', header=False, index=False)
+    df.to_csv(output, sep='|', header=False, index=False)
     output.seek(0)
     contents = output.getvalue()
-    cur.copy_from(output, table, null="") # null values become ''
+    cur.copy_from(output, table, sep = '|', null="") # null values become ''
     conn.commit()
 
 if __name__ == "__main__":
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     ## Clustering
     print('creating clusters...')
     agg_ward = AgglomerativeClustering(n_clusters=6).fit_predict(props_mod) #define clusters
-    props['agg_ward'] = agg_ward # add cluster definition to original dataset
+    props['cluster'] = agg_ward # add cluster definition to original dataset
 
     ## Write Table to DB
     print('writing table to db...')

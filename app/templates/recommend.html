@@ -58,10 +58,14 @@
 
       <div class="starter-template">
         <h1>Product Recommender by Category</h1>
-        <p class="lead">Recommender goes here.</p>
-   
-        {{ recommendation }}
-
+        <br>
+        {% for x in recommendation %}
+              {% if x[0] == 1 %}
+                <br> 
+              {% endif %}
+              {{ x[1] }}
+              <br>
+        {% endfor %}
         <br><br>
         <form action="/" >
             <input type="submit" value = "Start Over"/>

@@ -13,7 +13,7 @@ from src.category_recommender import sold_by_store, top_sold_by_cluster, top_sol
 
 app = Flask(__name__)
 
-sold = get_table('SELECT * FROM product_category_recommender')
+#sold = get_table('SELECT * FROM product_category_recommender')
 sql = 'SELECT DISTINCT property_code FROM product_category_recommender ORDER BY property_code'
 prop_list = list(get_table(sql).iloc[:,0])
 sql = 'SELECT DISTINCT transaction_month FROM product_category_recommender ORDER BY transaction_month DESC'
@@ -25,7 +25,7 @@ category_list = list(get_table(sql).iloc[:,0])
 # home page
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    properties = ['CLTTB', 'DALLF', 'LRDES', 'DTTLI', 'CHILM', 'SEALW','MEMPE', 'MIASP', 'YULDN', 'MCOOR']
+    properties = prop_list #['CLTTB', 'DALLF', 'LRDES', 'DTTLI', 'CHILM', 'SEALW','MEMPE', 'MIASP', 'YULDN', 'MCOOR']
     categories = category_list
     months = month_list
     nums = [5, 1, 2, 3, 4, 6, 7, 8, 9, 10]
@@ -33,14 +33,26 @@ def index():
 
 @app.route('/recommend', methods=['GET', 'POST'])
 def recommend():
-    property = request.form['property']
+    property = request.form['property'] 
     category = request.form['category']
     month = request.form['month']
     num = request.form['num']
-  
-    recommendation = compare_products(property, category, month, int(num), sold)#compare_products(property, category, month, num, sold)
     
-    return render_template('recommend.html', recommendation=recommendation)
+    SQL = """SELECT * 
+            FROM product_category_recommender 
+            WHERE property_code = '{0}'
+                AND category_name = '{1}'
+            """.format(property, category)
+    sold = get_table(SQL)
+
+    recommendation = compare_products(property, category, month, int(num), sold)
+
+    return render_template('recommend.html', property=property, recommendation=recommendation)
+
+@app.route('/property_lookup', methods=['GET', 'POST'])
+def property_lookup():
+    prop_lookup = get_table('SELECT * FROM property_code_lookup')
+    return render_template('property_lookup.html', data = prop_lookup.to_html())
 
 @app.route('/about')
 def about():

@@ -57,61 +57,13 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>Product Recommender by Category</h1>
-        <p class="lead">Enter parameters below to get recommended products.</p>
-
-        <!-- <form action="/recommend" method='POST' >
-          <input type="text" name="property" />
-          <input type="submit" />
-        </form> -->
-        <br>
-        <form action="/property_lookup">
-        <input type="submit" value = "Property Lookup Table"/>
-        </form>
-        <br>
-
-        <table>
-        <form action="/recommend" method='POST'>
-          <label>Property Code<br></label>
-          <input type="text" name="property" value="DALLF">
-            <!-- <select name="property" width="1000px">
-              {% for x in properties %}
-              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-              {% endfor %}
-            </select> -->
         
-          <br>
+        {% block content %}
+        <h1>Property Lookup (Beta)</h1><br>
         
-          <label>Product Category<br></label>
-            <select name="category" width="1000px">
-              {% for x in categories %}
-              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-              {% endfor %}
-            </select>
-        
-            <br>
-        
-          <label>Month<br></label>
-            <select name="month" width="1000px">
-              {% for x in months %}
-              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-              {% endfor %}
-            </select>
-        
-            <br>
-        
-          <label>Number of Recommendations<br></label>
-            <select name="num" width="1000px">
-              {% for x in [5, 1, 2, 3, 4, 6, 7, 8, 9, 10] %}
-              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-              {% endfor %}
-            </select>
-        
-
-        <br><br>
-        
-            <input type="submit" value = "Recommend Products!"/>
-        </form></table>
+        <label>Use CTRL-f to find the property code<br></label>
+        <div align="center">{{data | safe}}</div>
+        {% endblock %}
       </div>
 
     </div><!-- /.container -->
