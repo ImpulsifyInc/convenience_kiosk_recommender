@@ -71,7 +71,7 @@
               {% endfor %}
             </select>
         </form> -->
-        <form action="/product_lookup" method='POST'>
+        <form action="/product_lookup">
             <input type="submit" value = "Product Lookup"/><br><br>
         </form>
 
@@ -88,6 +88,13 @@
         <br>
         <H3>Estimated Median Sales = {{ best_sales }}</H3>
         <br> 
+        {% if chart1 %}
+            <img src = {{ chart1 }} alt="Distribution Chart">
+        {% endif %}
+        <br><br>
+        {% if chart2 %}
+        <img src = {{ chart2 }} alt="Boxplot Chart">
+        {% endif %}
     </table>
 
     </div><!-- /.container -->

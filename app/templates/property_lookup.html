@@ -85,8 +85,8 @@
             <form action="/property_lookup" method='POST'>
               <!-- <label>City<br></label> -->
               <input type="submit" value = "Search by City"/>
-                <select name="product_description" width="1000px">
-                  {% for x in descriptions %}
+                <select name="city" width="1000px">
+                  {% for x in cities %}
                   <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
                   {% endfor %}
                 </select>

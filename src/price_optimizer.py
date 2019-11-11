@@ -101,7 +101,7 @@ class prod_subset(object):
         else:
             clust_descrip = ''
         plt.suptitle(self.description + clust_descrip)
-        fig.savefig('../static/sales_scatter.png')
+        fig.savefig('static/sales_scatter.png')
     
     def boxplots(self):
         if self.data.shape[0] < 1:
@@ -144,7 +144,7 @@ class prod_subset(object):
             else:
                 clust_descrip = ''
             plt.suptitle(self.description + clust_descrip)
-            fig.savefig('../static/sales_boxplot.png')
+            fig.savefig('static/sales_boxplot.png')
     
     def dists(self):
         
@@ -165,5 +165,5 @@ class prod_subset(object):
             else:
                 clust_descrip = ''
             plt.suptitle('Distributions for ' + self.description + clust_descrip)
-            fig.savefig('../static/sales_distributions.png')
+            fig.savefig('static/sales_distributions.png')
           
