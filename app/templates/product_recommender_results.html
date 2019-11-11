@@ -47,7 +47,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li class="active"><a href="/product_recommender">Product Recomender</a></li>
+            <li class="active"><a href="/product_recommender">Product Recommender</a></li>
             <li><a href="/price_optimizer">Price Optimizer</a></li>
             <li><a href="/about">About</a></li>
             <!-- <li><a href="#contact">Contact</a></li> -->
@@ -59,55 +59,19 @@
     <div class="container">
 
       <div class="starter-template">
-
-        {% block content %}
-        <h1>Property Code Lookup</h1><br>
-        
-        <label>Use CTRL-f or filter below to find the property code<br><br></label>
-
-        <form action="/product_recommender">
-            <!-- <label>City<br></label> -->
-            <input type="submit" value = "Back to Product Recommender"/>
-          </form>
+        <h1>Product Recommender by Category</h1>
         <br>
-        <table>
-            <!-- <form action="/property_lookup" method='POST'>
-              
-              <input type="submit" value = "Search by Flag Name"/>
-                <select name="flag_name" width="1000px">
-                  {% for x in flags %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form> -->
-                <br>
-            
-            <form action="/property_lookup" method='POST'>
-              <!-- <label>City<br></label> -->
-              <input type="submit" value = "Search by City"/>
-                <select name="product_description" width="1000px">
-                  {% for x in descriptions %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form>
-                <br>
-            <!-- <form action="/property_lookup" method='POST'>
-             
-              <input type="submit" value = "Search by State"/>
-                <select name="state" width="1000px">
-                  {% for x in states %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form> -->
-            
-            <br>
-                <!-- <input type="submit" value = "Search Properties"/> -->
-            <!-- </form> -->
-        </table>
-        <div align="center">{{data | safe}}</div>
-        {% endblock %}
+        {% for x in recommendation %}
+              {% if x[0] == 1 %}
+                <br> 
+              {% endif %}
+              {{ x[1] }}
+              <br>
+        {% endfor %}
+        <br><br>
+        <form action="/" >
+            <input type="submit" value = "Start Over"/>
+        </form>
       </div>
 
     </div><!-- /.container -->

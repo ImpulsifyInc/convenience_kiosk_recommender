@@ -11,6 +11,7 @@ import sys
 sys.path.append("..")
 from src.get_clusters import get_table
 from src.category_recommender import sold_by_store, top_sold_by_cluster, top_sold_overall, compare_products
+from src.price_optimizer import prod_subset
 
 app = Flask(__name__)
 
@@ -28,16 +29,20 @@ sql = 'SELECT DISTINCT category_name FROM product_category_recommender ORDER BY 
 category_list = list(get_table(sql).iloc[:,0])
 
 # home page
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/product_recommender', methods=['GET', 'POST'])
+def product_recommender():
     
     categories = category_list
     months = month_list
     nums = [5, 1, 2, 3, 4, 6, 7, 8, 9, 10]
-    return render_template('index.html', categories = categories, months = months, nums = nums)
+    return render_template('product_recommender.html', categories = categories, months = months, nums = nums)
 
-@app.route('/recommend', methods=['GET', 'POST'])
-def recommend():
+@app.route('/product_recommender_results', methods=['GET', 'POST'])
+def product_recommender_results():
     property = request.form['property'] 
     category = request.form['category']
     month = request.form['month']
@@ -51,10 +56,9 @@ def recommend():
 
     recommendation = compare_products(property, category, month, int(num), sold)
 
-    return render_template('recommend.html', property=property, recommendation=recommendation)
+    return render_template('product_recommender_results.html', property=property, recommendation=recommendation)
 
 @app.route('/property_lookup', methods=['GET', 'POST'])
-
 def property_lookup():
     sql = 'SELECT DISTINCT flag_name FROM product_category_recommender ORDER BY flag_name'
     flags = []
@@ -85,6 +89,55 @@ def property_lookup():
         prop_lookup = get_table('SELECT * FROM property_code_lookup')
     return render_template('property_lookup.html', data = prop_lookup.to_html(), \
         flags = flags, cities = cities, states = states)
+
+@app.route('/price_optimizer', methods=['GET', 'POST'])
+def price_optimizer():
+    #sql = 'SELECT DISTINCT description FROM product_category_recommender ORDER BY description'
+    descriptions = []#list(get_table(sql).iloc[:,0])
+    
+    product_description = None
+    sold = None
+    best_price = None
+    best_sales = None
+    best_rev = None
+
+    if request.method == 'POST':
+        product_description = request.form['product_description']
+        sql = "SELECT * FROM product_category_recommender WHERE description = '{}' ".format(product_description) 
+        sold = get_table(sql)
+        sold['unit_price'] = np.round(sold.dollars_sold / sold.number_sold, 2)
+        prod = prod_subset(sold, product_description)
+        #prod.dists()
+        #prod.boxplots()
+        best_price = round(prod._best_price,2)
+        best_sales = round(prod._best_sales,0)
+        best_rev = round(prod._best_rev,0)
+        
+    return render_template('price_optimizer.html', descriptions = descriptions, product_description = product_description, \
+         sold = sold, best_price = best_price, best_rev = best_rev, best_sales = best_sales)
+
+@app.route('/product_lookup', methods=['GET', 'POST'])
+def product_lookup():
+    if request.method == 'POST':
+        category = request.form['category']
+        sql = '''SELECT DISTINCT c.name category_name, mpd.description 
+            FROM mpd
+            LEFT JOIN categories c
+            ON mpd.category_id = c.id
+            WHERE c.name = '{}'
+            ORDER BY description, category_name
+            '''.format(category)
+    else:
+        sql = '''SELECT DISTINCT c.name category_name, mpd.description 
+                FROM mpd
+                LEFT JOIN categories c
+                ON mpd.category_id = c.id
+                ORDER BY description, category_name
+                '''
+    products = get_table(sql)
+    categories = list(get_table('SELECT DISTINCT name FROM categories').iloc[:,0])
+
+    return render_template('product_lookup.html', data = products.to_html(), categories = categories)
 
 @app.route('/about')
 def about():

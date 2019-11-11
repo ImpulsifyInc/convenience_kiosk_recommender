@@ -47,7 +47,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li class="active"><a href="/product_recommender">Product Recomender</a></li>
+            <li class="active"><a href="/product_recommender">Product Recommender</a></li>
             <li><a href="/price_optimizer">Price Optimizer</a></li>
             <li><a href="/about">About</a></li>
             <!-- <li><a href="#contact">Contact</a></li> -->
@@ -59,55 +59,57 @@
     <div class="container">
 
       <div class="starter-template">
+        <h1>Product Recommender by Category</h1>
+        <p class="lead">Enter parameters below to get recommended products.</p>
 
-        {% block content %}
-        <h1>Property Code Lookup</h1><br>
-        
-        <label>Use CTRL-f or filter below to find the property code<br><br></label>
-
-        <form action="/product_recommender">
-            <!-- <label>City<br></label> -->
-            <input type="submit" value = "Back to Product Recommender"/>
-          </form>
         <br>
+        <form action="/property_lookup">
+        <input type="submit" value = "Property Lookup Table"/>
+        </form>
+        <br>
+
         <table>
-            <!-- <form action="/property_lookup" method='POST'>
-              
-              <input type="submit" value = "Search by Flag Name"/>
-                <select name="flag_name" width="1000px">
-                  {% for x in flags %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form> -->
-                <br>
-            
-            <form action="/property_lookup" method='POST'>
-              <!-- <label>City<br></label> -->
-              <input type="submit" value = "Search by City"/>
-                <select name="product_description" width="1000px">
-                  {% for x in descriptions %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form>
-                <br>
-            <!-- <form action="/property_lookup" method='POST'>
-             
-              <input type="submit" value = "Search by State"/>
-                <select name="state" width="1000px">
-                  {% for x in states %}
-                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
-                  {% endfor %}
-                </select>
-            </form> -->
-            
+        <form action="/product_recommender_results" method='POST'>
+          <label>Property Code<br></label>
+          <input type="text" name="property" value="DALLF">
+            <!-- <select name="property" width="1000px">
+              {% for x in properties %}
+              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select> -->
+        
+          <br>
+        
+          <label>Product Category<br></label>
+            <select name="category" width="1000px">
+              {% for x in categories %}
+              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+        
             <br>
-                <!-- <input type="submit" value = "Search Properties"/> -->
-            <!-- </form> -->
-        </table>
-        <div align="center">{{data | safe}}</div>
-        {% endblock %}
+        
+          <label>Month<br></label>
+            <select name="month" width="1000px">
+              {% for x in months %}
+              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+        
+            <br>
+        
+          <label>Number of Recommendations<br></label>
+            <select name="num" width="1000px">
+              {% for x in [5, 1, 2, 3, 4, 6, 7, 8, 9, 10] %}
+              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+        
+
+        <br><br>
+        
+            <input type="submit" value = "Recommend Products!"/>
+        </form></table>
       </div>
 
     </div><!-- /.container -->

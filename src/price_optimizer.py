@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.interpolate import CubicSpline, UnivariateSpline, interp1d
 from scipy import interpolate, stats
@@ -57,8 +58,8 @@ class prod_subset(object):
             rng = mx - mn
             price_bins = np.linspace(mn,mx,(rng * 4) +1)
             bin_x = np.digitize(x, price_bins, right=True)
-            mean,std=norm.fit(bin_x)
-            y_fit = norm.pdf(bin_x, mean, std)
+            mean,std= stats.norm.fit(bin_x)
+            y_fit = stats.norm.pdf(bin_x, mean, std)
             best_price = price_bins[np.unique(bin_x)][bin_x[np.argmax(y_fit)]]
             if np.max(stats.binned_statistic(x, y1, statistic='median')[0]):
                 max_rev = np.max(stats.binned_statistic(x, y1, statistic='median')[0])
@@ -100,7 +101,7 @@ class prod_subset(object):
         else:
             clust_descrip = ''
         plt.suptitle(self.description + clust_descrip)
-        fig.savefig('../img/sales_scatter.png')
+        fig.savefig('../static/sales_scatter.png')
     
     def boxplots(self):
         if self.data.shape[0] < 1:
@@ -115,8 +116,8 @@ class prod_subset(object):
             rng = mx - mn
             price_bins = np.linspace(mn,mx,(rng * 4) +1)
             bin_x = np.digitize(x, price_bins, right=True)
-            mean,std=norm.fit(bin_x)
-            y_fit = norm.pdf(bin_x, mean, std)
+            mean,std= stats.norm.fit(bin_x)
+            y_fit = stats.norm.pdf(bin_x, mean, std)
 
             fig, ax = plt.subplots(1,2, figsize = (12,4))
             
@@ -143,7 +144,7 @@ class prod_subset(object):
             else:
                 clust_descrip = ''
             plt.suptitle(self.description + clust_descrip)
-            fig.savefig('../img/sales_boxplot.png')
+            fig.savefig('../static/sales_boxplot.png')
     
     def dists(self):
         
@@ -164,5 +165,5 @@ class prod_subset(object):
             else:
                 clust_descrip = ''
             plt.suptitle('Distributions for ' + self.description + clust_descrip)
-            fig.savefig('../img/sales_distributions.png')
+            fig.savefig('../static/sales_distributions.png')
           

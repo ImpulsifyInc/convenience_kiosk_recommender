@@ -46,7 +46,9 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/product_recommender">Product Recommender</a></li>
+            <li class="active"><a href="/price_optimizer">Price Optimizer</a></li>
             <li><a href="/about">About</a></li>
             <!-- <li><a href="#contact">Contact</a></li> -->
           </ul>
@@ -57,20 +59,36 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>Product Recommender by Category</h1>
+        <h1>Price Optimizer</h1>
         <br>
-        {% for x in recommendation %}
-              {% if x[0] == 1 %}
-                <br> 
-              {% endif %}
-              {{ x[1] }}
-              <br>
-        {% endfor %}
-        <br><br>
-        <form action="/" >
-            <input type="submit" value = "Start Over"/>
+    <br>
+    <table>
+        <!-- <form action="/price_optimizer" method='POST'>
+          <input type="submit" value = "Select Product"/>
+            <select name="product_description" width="1000px">
+              {% for x in descriptions %}
+              <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+        </form> -->
+        <form action="/product_lookup" method='POST'>
+            <input type="submit" value = "Product Lookup"/><br><br>
         </form>
-      </div>
+
+        <form action="/price_optimizer" method='POST'>
+            <input type="submit" value = "Analyze Product:"/>
+            <input type="text" size="40" name="product_description" value="Coca-Cola, Classic Soda, 20 Oz, Bottle">
+        </form>
+        <br>
+        <H2>Analyzing Product: {{ product_description }}</H2>
+        <br>
+        <H3>Optimal Price = ${{ best_price }}</H3>
+        <br>
+        <H3>Estimated Median Revenue = ${{ best_rev }}</H3>
+        <br>
+        <H3>Estimated Median Sales = {{ best_sales }}</H3>
+        <br> 
+    </table>
 
     </div><!-- /.container -->
 
