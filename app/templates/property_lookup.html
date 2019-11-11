@@ -57,11 +57,47 @@
     <div class="container">
 
       <div class="starter-template">
-        
+
         {% block content %}
-        <h1>Property Lookup (Beta)</h1><br>
+        <h1>Property Code Lookup (Beta)</h1><br>
         
-        <label>Use CTRL-f to find the property code<br></label>
+        <label>Use CTRL-f or filters below to find the property code<br><br></label>
+        <table>
+            <!-- <form action="/property_lookup" method='POST'>
+              
+              <input type="submit" value = "Search by Flag Name"/>
+                <select name="flag_name" width="1000px">
+                  {% for x in flags %}
+                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+                  {% endfor %}
+                </select>
+            </form> -->
+                <br>
+            
+            <form action="/property_lookup" method='POST'>
+              <!-- <label>City<br></label> -->
+              <input type="submit" value = "Search by City"/>
+                <select name="city" width="1000px">
+                  {% for x in cities %}
+                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+                  {% endfor %}
+                </select>
+            </form>
+                <br>
+            <!-- <form action="/property_lookup" method='POST'>
+             
+              <input type="submit" value = "Search by State"/>
+                <select name="state" width="1000px">
+                  {% for x in states %}
+                  <option value="{{ x }}"{% if loop.first %} SELECTED{% endif %}>{{ x }}</option>
+                  {% endfor %}
+                </select>
+            </form> -->
+            
+            <br>
+                <!-- <input type="submit" value = "Search Properties"/> -->
+            <!-- </form> -->
+        </table>
         <div align="center">{{data | safe}}</div>
         {% endblock %}
       </div>
