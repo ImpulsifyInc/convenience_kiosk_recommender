@@ -18,14 +18,16 @@ class prod_subset(object):
     Produces a subsetted DataFrame of sales per property of that product
         
     Methods:
-        return_df() : returns a DatFrame of the subsetted data
-        plot_sales() :  returns number sold and revenue as a function of price
-        plot_dists() : plots the distribution of price, number sold, and revenue
+        return_df() : returns a DataFrame of the subsetted data
+        optimiz_price() : naively assumes a uniform distribution and finds the max revenue
+        scatplot() :  plots a scatter plot of number sold and revenue as a function of price
+        boxplot() :  plots a box plot of number sold and revenue as a function of price
+        dists() : plots the distribution of price, number sold, and revenue
         
-    Variables:
-        _best_price : estimated best price to set on an item to maximize profits
-        _best_revenue : the estimated median revenue when using the best price
-        _best_sales : the estimated median number of sales when using the best price
+    Attributes:
+        best_price_ : estimated best price to set on an item to maximize profits
+        best_revenue_ : the estimated median revenue when using the best price
+        best_sales_ : the estimated median number of sales when using the best price
     '''
     
     def __init__(self, df, description, month = None, cluster = None):
@@ -40,12 +42,18 @@ class prod_subset(object):
             self.data = self.data[self.data.transaction_month == self.month]
         self.data = self.data.groupby('unit_price').mean()[['number_sold']].reset_index()
         self.data['revenue'] = self.data.unit_price * self.data.number_sold
-        self._best_price, self._best_rev, self._best_sales = self.optimize_price()
+        self.best_price_, self.best_rev_, self.best_sales_ = self.optimize_price()
         
     def return_df(self):
+        '''
+        returns a DataFrame of the subsetted data
+        '''
         return self.data
     
     def optimize_price(self):
+        '''
+        naively assumes a uniform distribution and finds the max revenue
+        '''
         if self.data.shape[0] < 2:
             return None, None, None
         else:
@@ -72,12 +80,15 @@ class prod_subset(object):
             return best_price, max_rev, max_sales
     
     def scatplot(self):
-    
+        '''
+        returns number sold and revenue as a function of price
+        '''
         if self.data.shape[0] < 2:
             return 'Not enough sales for selected product to plot'
 
         x = self.data['unit_price']
         y0 = self.data['number_sold']
+        #plot splines to look for pattern
         spl0 = UnivariateSpline(x, y0)
         spl0.set_smoothing_factor(1000000)
         y1 = self.data['revenue']
@@ -86,16 +97,20 @@ class prod_subset(object):
 
         fig, ax = plt.subplots(1,2, figsize = (9,4))
 
+        #Number Sold vs. Unit Price
         sns.scatterplot(x, y0, ax = ax[0])
         ax[0].set_xlabel('Unit Price')
         ax[0].set_ylabel('Average Number Sold')
         ax[0].plot(x, spl0(x), c = 'b', label='Spline Fit')
         ax[0].legend()
+        
+        #Revenue vs. Unit Price
         sns.scatterplot(x, y1, ax = ax[1])
         ax[1].set_xlabel('Unit Price')
         ax[1].set_ylabel('Average Revenue')
         ax[1].plot(x, spl1(x), c = 'b', label='Spline Fit')
         ax[1].legend()
+        
         if self.cluster != None:
             clust_descrip = ' | Cluster: {}'.format(self.cluster)
         else:
@@ -104,6 +119,9 @@ class prod_subset(object):
         fig.savefig('static/sales_scatter.png')
     
     def boxplots(self):
+        '''
+        plots a box plot of number sold and revenue as a function of price
+        '''
         if self.data.shape[0] < 1:
             return "Not enough sales for selected product to plot"
         else:
@@ -121,6 +139,7 @@ class prod_subset(object):
 
             fig, ax = plt.subplots(1,2, figsize = (12,4))
             
+            #Number Sold vs. Unit Price
             sns.boxplot(x = bin_x, y = y0, color = 'lightblue', ax = ax[0])
             sns.stripplot(x = bin_x, y = y0, color = 'red', size = 3, ax = ax[0])
             ax[0].plot(bin_x, (y_fit/np.max(y_fit))*self._best_sales, c = 'green') # scale to box plot
@@ -130,6 +149,7 @@ class prod_subset(object):
             ax[0].set_xlabel('Price')
             ax[0].set_ylabel('Number Sold')
             
+            #Number Revenue vs. Unit Price
             sns.boxplot(x = bin_x, y = y1, color = 'lightblue', ax = ax[1])
             sns.stripplot(x = bin_x, y = y1, color = 'red', size = 3, ax = ax[1])
             ax[1].plot(bin_x, (y_fit/np.max(y_fit))*self._best_rev, c = 'green') # scale to box plot
@@ -147,7 +167,9 @@ class prod_subset(object):
             fig.savefig('static/sales_boxplot.png')
     
     def dists(self):
-        
+        '''
+        plots the distribution of price, number sold, and revenue
+        '''
         if self.data.shape[0] < 2:
             return 'Not enough sales for selected product to plot'
         else:
