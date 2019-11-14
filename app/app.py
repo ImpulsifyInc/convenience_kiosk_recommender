@@ -109,11 +109,12 @@ def price_optimizer():
         sold = get_table(sql)
         sold['unit_price'] = np.round(sold.dollars_sold / sold.number_sold, 2)
         prod = prod_subset(sold, product_description)
-        prod.dists()
+        print('description = {}'.format(prod.description))
+        prod.dists()    
         prod.boxplots()
-        best_price = round(prod._best_price,2)
-        best_sales = round(prod._best_sales,0)
-        best_rev = round(prod._best_rev,0)
+        best_price = '{0:.2f}'.format(prod.best_price_)
+        best_sales = '{0:.0f}'.format(prod.best_sales_)
+        best_rev = '{0:.0f}'.format(prod.best_rev_)
         chart1 = 'static/sales_boxplot.png'
         chart2 = 'static/sales_distributions.png'
         
@@ -124,24 +125,20 @@ def price_optimizer():
 @app.route('/product_lookup', methods=['GET', 'POST'])
 def product_lookup():
     category = None
-    sql = '''SELECT DISTINCT c.name category_name, mpd.description 
-                FROM mpd
-                LEFT JOIN categories c
-                ON mpd.category_id = c.id
-                ORDER BY description, category_name
+    sql = '''SELECT *
+                FROM product_category_xref 
+                ORDER BY category_name, description
                 '''
     if request.method == 'POST':
         category = request.form['category']
-        sql = '''SELECT DISTINCT c.name category_name, mpd.description 
-            FROM mpd
-            LEFT JOIN categories c
-            ON mpd.category_id = c.id
-            WHERE c.name = '{}'
-            ORDER BY description, category_name
-            '''.format(category)
+        sql = '''SELECT * 
+                    FROM product_category_xref
+                    WHERE category_name = '{}'
+                    ORDER BY category_name, description
+                    '''.format(category)
         
     products = get_table(sql)
-    categories = list(get_table('SELECT DISTINCT name FROM categories ORDER BY name').iloc[:,0])
+    categories = list(get_table('SELECT name FROM categories ORDER BY name').iloc[:,0])
 
     return render_template('product_lookup.html', data = products.to_html(), categories = categories)
 

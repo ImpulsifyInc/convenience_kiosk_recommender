@@ -142,22 +142,22 @@ class prod_subset(object):
             #Number Sold vs. Unit Price
             sns.boxplot(x = bin_x, y = y0, color = 'lightblue', ax = ax[0])
             sns.stripplot(x = bin_x, y = y0, color = 'red', size = 3, ax = ax[0])
-            ax[0].plot(bin_x, (y_fit/np.max(y_fit))*self._best_sales, c = 'green') # scale to box plot
+            ax[0].plot(bin_x, (y_fit/np.max(y_fit))*self.best_sales_, c = 'green') # scale to box plot
             
             ax[0].set_title('Quantity vs. Price Bins')
             ax[0].set_xticklabels(price_bins[np.unique(bin_x)], rotation = 60)
-            ax[0].set_xlabel('Price')
+            ax[0].set_xlabel('Price ($)')
             ax[0].set_ylabel('Number Sold')
             
             #Number Revenue vs. Unit Price
             sns.boxplot(x = bin_x, y = y1, color = 'lightblue', ax = ax[1])
             sns.stripplot(x = bin_x, y = y1, color = 'red', size = 3, ax = ax[1])
-            ax[1].plot(bin_x, (y_fit/np.max(y_fit))*self._best_rev, c = 'green') # scale to box plot
+            ax[1].plot(bin_x, (y_fit/np.max(y_fit))*self.best_rev_, c = 'green') # scale to box plot
     
             ax[1].set_title('Revenue vs. Price Bins')
             ax[1].set_xticklabels(price_bins[np.unique(bin_x)], rotation = 60)
-            ax[1].set_xlabel('Price')
-            ax[1].set_ylabel('Revenue')
+            ax[1].set_xlabel('Price ($)')
+            ax[1].set_ylabel('Revenue ($)')
             
             if self.cluster != None:
                 clust_descrip = ' | Cluster: {}'.format(self.cluster)
@@ -180,8 +180,7 @@ class prod_subset(object):
             for i, col in enumerate(cols):
                 #ax[i].hist(self.data[col])
                 ax[i] = sns.distplot(self.data[col], bins = 15, ax = ax[i])
-                ax[i].set_ylabel = 'col'
-            ax[0].set_ylabel = 'col'
+            ax[0].set_ylabel('Probability Density')
             if self.cluster != None:
                 clust_descrip = ' | Cluster: {}'.format(self.cluster)
             else:
