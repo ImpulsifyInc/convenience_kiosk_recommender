@@ -20,7 +20,8 @@ The first recommender was build to suggest what additional products the store sh
 
 Hotels were grouped using a hierarchical clustering model. In this model, each data point is taken individually and then grouped
 
-![hierarchical clustering diagram]()
+![hierarchical clustering diagram](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/hierarchical_clustering.png)
+
 *Hierachical clustering. The top chart goes down 100 levels for illustative purposes. In practice, the clustering starts with each individual data point until they're all in one group at the top. You can then back down to however many groups you deem appropriate. In this case, 5 groupings were used*
 
 The 5 groupings for the end model were based on a mixture of parameters. However, the most distinguishing parameter for each group is provided below:
@@ -36,19 +37,19 @@ The 5 groupings for the end model were based on a mixture of parameters. However
 
 An web app was built using Flask in order to deploy this recommender.
 
-![app home page]()
+![app home page](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/home_page.png)
 *App home page*
 
 
 Parameters are entered into this screen:
 
-![product recommender screen shot]()
+![product recommender screen shot](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/product_recommender.png)
 *Screen shot of the product recommender*
 
 
 Should the property code for the hotel be unknown, a lookup table is provided:
 
-![lookup table screenshot]()
+![lookup table screenshot](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/property_lookup.png)
 *Screen shot of the lookup table*
 
 #### Output
