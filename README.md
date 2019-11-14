@@ -37,10 +37,6 @@ The 5 groupings for the end model were based on a mixture of parameters. However
 
 An web app was built using Flask in order to deploy this recommender.
 
-![app home page](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/home_page.png)
-*App home page*
-
-
 Parameters are entered into this screen:
 
 ![product recommender screen shot](https://github.com/scottfeldmanpeabody/convenience_kiosk_recommender/blob/master/img/product_recommender.png)
