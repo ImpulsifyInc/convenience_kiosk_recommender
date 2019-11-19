@@ -50,7 +50,7 @@ Should the property code for the hotel be unknown, a lookup table is provided:
 
 #### Output
 
-An examplet output is shown below:
+An example output is shown below:
 
 For store #XXXXX BrandX, Anytown, USA on some date:
 
